@@ -15,7 +15,7 @@ namespace plcplay
 {
     public partial class Form1 : Form
     {
-        private Plc s7200smart;
+        private Plc _plcClient;
 
         public Form1()
         {
@@ -30,11 +30,19 @@ namespace plcplay
                 MessageBox.Show("Please input plc ip.");
                 return;
             }
+            
+            if (cbNewPlc.Checked)
+            {
+                _plcClient = new Plc(CpuType.S71200, this.txtIP.Text.Trim(), 0, 0);
+            }
+            else
+            {
+                _plcClient = new Plc(CpuType.S7200Smart, this.txtIP.Text.Trim(), 0, 0);
+            }
 
-            s7200smart = new Plc(CpuType.S7200Smart, this.txtIP.Text.Trim(), 0, 0);
-            s7200smart.Open();
+            _plcClient.Open();
 
-            if (s7200smart.IsConnected)
+            if (_plcClient.IsConnected)
             {
                 MessageBox.Show("Connected");
             }
@@ -42,9 +50,9 @@ namespace plcplay
 
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            if (s7200smart.IsConnected)
+            if (_plcClient.IsConnected)
             {
-                s7200smart.Close();
+                _plcClient.Close();
                 MessageBox.Show("Disconnected.");
             }
         }
@@ -63,9 +71,9 @@ namespace plcplay
                 return;
             }
 
-            if (s7200smart.IsConnected)
+            if (_plcClient.IsConnected)
             {
-                s7200smart.Write(this.txtWriteVariable.Text.Trim(),
+                _plcClient.Write(this.txtWriteVariable.Text.Trim(),
                     string.Equals(this.txtWriteValue.Text.Trim(), "1", StringComparison.OrdinalIgnoreCase));
                 this.lblWriteResult.Text = "Write success.";
             }
@@ -79,9 +87,9 @@ namespace plcplay
                 return;
             }
 
-            if (s7200smart.IsConnected)
+            if (_plcClient.IsConnected)
             {
-                var result = s7200smart.Read(this.txtReadVariable.Text.Trim());
+                var result = _plcClient.Read(this.txtReadVariable.Text.Trim());
                 this.txtReadResult.Text = (Convert.ToInt32((bool)result)).ToString();
             }
         }
